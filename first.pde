@@ -10,7 +10,7 @@ void settings(){
 
 void setup() {
 
-  String nomFichier = "a.mp3";
+  String nomFichier = "a.jpg";
 
   octetsDuFichier = lireFichier(nomFichier); 
 
@@ -28,9 +28,9 @@ void draw() {
 
     if (octetsDuFichier != null) {
         for (int i = 0; i < octetsDuFichier.length; i += 3) {
-        float x = map(octetsDuFichier[i], 0, 3000, -1000, 1000);      //  mapping des valeurs 
-        float y = map(octetsDuFichier[i + 1], 0, 3000, -1000, 1000);  
-        float z = map(octetsDuFichier[i + 2], 0, 3000, -1000, 1000);  
+        float x = map(octetsDuFichier[i], 0, 3000, -3000, 3000);      //  mapping des valeurs 
+        float y = map(octetsDuFichier[i + 1], 0, 3000, -3000, 3000);  
+        float z = map(octetsDuFichier[i + 2], 0, 3000, -3000, 3000);  
         
         // Dessinner point position (x, y, z)
         stroke(255); // Couleur 

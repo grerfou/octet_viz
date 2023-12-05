@@ -1,32 +1,45 @@
-import peasy.*;
-
-PeasyCam cam;
-
 byte[] octetsDuFichier; 
-
-void settings(){
-    fullScreen(P3D, 0);
-}
+int indexCoordonnee = 0; 
 
 void setup() {
 
-  String nomFichier = "a.jpg";
+  String nomFichier = "chemin/vers/votre/fichier";
+  
 
   octetsDuFichier = lireFichier(nomFichier); 
-
-  cam = new PeasyCam(this, 100);
-  cam.setMinimumDistance(10);
-  cam.setMaximumDistance(5000);
-
-//   size(1000, 1000, P3D);
+  // size(800, 600); 
+  background(0); 
 }
 
 void draw() {
-    background(0); 
+  if (octetsDuFichier != null) {
+
+    if (indexCoordonnee < octetsDuFichier.length - 2) {
+
+      float x = map(octetsDuFichier[indexCoordonnee], 0, 255, 0, width);
+      float y = map(octetsDuFichier[indexCoordonnee + 1], 0, 255, 0, height);
+      float z = map(octetsDuFichier[indexCoordonnee + 2], 0, 255, -200, 200);
+      
+
+      background(255); 
+      stroke(0); 
+      strokeWeight(5); 
+      point(x, y, z); 
+      
+
+      indexCoordonnee += 3;
+    }
+  }
 }
 
-
-//  Lecture du fichier en bytes 
 byte[] lireFichier(String nomFichier) {
-    
+
+  byte[] contenu = loadBytes(nomFichier);
+  
+  if (contenu != null) {
+    return contenu; 
+  } else {
+    println("Le fichier n'a pas pu être chargé.");
+    return null; 
+  }
 }

@@ -61,19 +61,19 @@ byte[] lireFichier(String nomFichier) {
         int index = 0;
 
         for (int j = 0; j < tailleTableauTroisOctets; j++) {
-        for (int k = 0; k < 3; k++) {
-            tableauTroisOctets[j][k] = contenu[index];
-            index++;
-        }
+            for (int k = 0; k < 3; k++) {
+                tableauTroisOctets[j][k] = contenu[index];
+                index++;
+            }
         }
 
         // Affichage des groupes de trois octets
         println("Octets organisés par groupe de trois : ");
         for (int j = 0; j < tailleTableauTroisOctets; j++) {
-        for (int k = 0; k < 3; k++) {
-            print(tableauTroisOctets[j][k] + " ");
-        }
-        println();
+            for (int k = 0; k < 3; k++) {
+                print(tableauTroisOctets[j][k] + " ");
+            }
+            println();
         }
         
         return contenu; // Retourne le tableau d'octets

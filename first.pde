@@ -1,62 +1,97 @@
-
-
 import peasy.*;
 
-byte[] octetsDuFichier; 
-int indexCoordonnee = 0; 
-PVector positionPrecedente; 
-
 PeasyCam cam;
+byte[][] octetsDuFichier; 
+int sphereSize = 5;
+int currentByte = 0;
+ArrayList<PVector> positionsHistory = new ArrayList<PVector>();
+float trailFadeSpeed = 50; // Vitesse de diminution de l'opacité de la trainée
 
-void settings(){
+void settings() {
     fullScreen(P3D, 0);
 }
 
 void setup() {
+    String nomFichier = "a.mp3";
+    octetsDuFichier = lireFichier(nomFichier); 
 
-  String nomFichier = "a.jpg";
+    cam = new PeasyCam(this, 100);
+    cam.setMinimumDistance(1);
 
-  cam = new PeasyCam(this, 200);
-  
-
-  octetsDuFichier = lireFichier(nomFichier); 
-  // size(800, 600, P3D); 
-  background(0); 
-  positionPrecedente = new PVector(0, 0, 0); 
+    frameRate(10);
 }
 
 void draw() {
-  if (octetsDuFichier != null) {
+    background(0); 
+    translate(width/2, height/2, -100);
 
-    if (indexCoordonnee < octetsDuFichier.length - 2) {
+    if (octetsDuFichier != null && currentByte < octetsDuFichier.length) {
+        float x = map(octetsDuFichier[currentByte][0], 0, 3000, -width/2, width/2); // mapping des valeurs 
+        float y = map(octetsDuFichier[currentByte][1], 0, 3000, -height/2, height/2);  
+        float z = map(octetsDuFichier[currentByte][2], 0, 3000, -1000, 1000);  
+
+        PVector currentPos = new PVector(x, y, z);
+        positionsHistory.add(currentPos.copy());
+
+        pushMatrix();
+
+        translate(x, y, z);
+        fill(255);
+        noStroke();
+        lights();
+        sphere(sphereSize);
+
+        popMatrix();
         
-        float x = map(octetsDuFichier[indexCoordonnee], 0, 255, -width/2, width/2);
-        float y = map(octetsDuFichier[indexCoordonnee + 1], 0, 255, -height/2, height/2);
-        float z = map(octetsDuFichier[indexCoordonnee + 2], 0, 255, -height/2, height/2);
-        PVector positionActuelle = new PVector(x, y, z);
+        // Trainée
+        drawTrail();
 
-        //pushMatrix();
-        stroke(255); 
-        strokeWeight(2); 
-        line(positionPrecedente.x, positionPrecedente.y, positionPrecedente.z, x, y, z);
-        //popMatrix(); 
-
-        positionPrecedente.set(x, y, z);
-
-
-        indexCoordonnee += 3;
+        // Rotation de la caméra autour de l'axe Y
+        float rotationAngle = map(currentByte, 0, octetsDuFichier.length, 0, TWO_PI); // Utilisation de l'avancement dans la lecture du fichier pour calculer l'angle de rotation
+        cam.beginHUD();
+        cam.rotateY(rotationAngle);
+        cam.endHUD();
+        
+        currentByte++;
     }
-  }
 }
 
-byte[] lireFichier(String nomFichier) {
 
-  byte[] contenu = loadBytes(nomFichier);
+void drawTrail() {
+    stroke(181, 36, 1);
+    noFill();
+    for (int i = 0; i < positionsHistory.size() - 1; i++) {
+        float alpha = map(i, 0, positionsHistory.size(), 255, 0); // Opacité basée sur la position dans l'historique
+        stroke(181, 36, 1, alpha); // Appliquer l'opacité
+        PVector pos1 = positionsHistory.get(i);
+        PVector pos2 = positionsHistory.get(i + 1);
+        line(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z);
+    }
+    
+    // Effacer les positions les plus anciennes pour créer l'effet de trainée qui s'efface
+    while (positionsHistory.size() > 3) { // Taille de l'historique des points
+        positionsHistory.remove(0);
+    }
+}
+
+byte[][] lireFichier(String nomFichier) {
+    byte[] contenu = loadBytes(nomFichier);
   
-  if (contenu != null) {
-    return contenu; 
-  } else {
-    println("Le fichier n'a pas pu être chargé.");
-    return null; 
-  }
+    if (contenu != null) {
+        int tailleTableauTroisOctets = contenu.length / 3;
+        byte[][] tableauTroisOctets = new byte[tailleTableauTroisOctets][3];
+        
+        int index = 0;
+        for (int j = 0; j < tailleTableauTroisOctets; j++) {
+            for (int k = 0; k < 3; k++) {
+                tableauTroisOctets[j][k] = contenu[index];
+                index++;
+            }
+        }
+        
+        return tableauTroisOctets;
+    } else {
+        println("Le fichier n'a pas pu être chargé.");
+        return null;
+    }
 }

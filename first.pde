@@ -3,7 +3,7 @@ import peasy.*;
 PeasyCam cam;
 byte[][] octetsDuFichier; 
 
-int sphereSize = 5;
+int sphereSize = 2;
 int currentByte = 0;
 ArrayList<PVector> positionsHistory = new ArrayList<PVector>();
 float trailFadeSpeed = 50; 
@@ -19,7 +19,7 @@ void settings() {
 void setup() {
 
     // Import file 
-    String nomFichier = "a.pdf";
+    String nomFichier = "a(2160p).mp4";
     //  Read File
     octetsDuFichier = lireFichier(nomFichier); 
 

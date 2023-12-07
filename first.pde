@@ -1,137 +1,117 @@
+import ddf.minim.*;
+import ddf.minim.analysis.*;
 import peasy.*;
+import peasy.org.apache.commons.math.geometry.*;
 
+Minim minim;
+AudioOutput out;
+AudioPlayer player;
+BeatDetect beat;
 PeasyCam cam;
-byte[][] octetsDuFichier; 
 
-int sphereSize = 5;
-int currentByte = 0;
-ArrayList<PVector> positionsHistory = new ArrayList<PVector>();
-float trailFadeSpeed = 50; 
-
-
-
-void settings() {
-    fullScreen(P3D, 0);
-}
-
-
+float[] waveX, waveY, waveZ;
+int waveLength = 800;
+float angle = 0.0;
+float frequencyX = 0.03;
+float frequencyY = 0.04;
+float frequencyZ = 0.05;
+  
 
 void setup() {
-
-    // Import file 
-    String nomFichier = "a.pdf";
-    //  Read File
-    octetsDuFichier = lireFichier(nomFichier); 
-
-    //  Init cam
-    cam = new PeasyCam(this, 100);
-    cam.setMinimumDistance(1);
-    cam.setMaximumDistance(10000);
-
-    // Speed anm
-    frameRate(10);
+  size(800, 600, P3D);
+  minim = new Minim(this);
+  
+  // Charge un fichier audio (changez le chemin du fichier)
+  player = minim.loadFile("a.mp3", 2048);
+  player.play();
+  
+  out = minim.getLineOut();
+  beat = new BeatDetect();
+  waveX = new float[waveLength];
+  waveY = new float[waveLength];
+  waveZ = new float[waveLength];
+  
+  cam = new PeasyCam(this, 500);
 }
 
 void draw() {
-    background(0); 
-    // translate(width/2, height/2, -100);
-
-    if (octetsDuFichier != null && currentByte < octetsDuFichier.length) {
-        float x = map(octetsDuFichier[currentByte][0], 0, 3000, -width/2, width/2); // mapping des valeurs 
-        float y = map(octetsDuFichier[currentByte][1], 0, 3000, -height/2, height/2);  
-        float z = map(octetsDuFichier[currentByte][2], 0, 3000, -1000, 1000);  
-
-        PVector currentPos = new PVector(x, y, z);
-        positionsHistory.add(currentPos.copy());
-
-        //  Draw graphic with octets
-        pushMatrix();
-
-        translate(x, y, z);
-        fill(181, 36, 5);
-        noStroke();
-        lights();
-        sphere(sphereSize);
-
-        popMatrix();
-        
-        // Trainée points 
-        drawTrail();
-
-        // Axes visibility
-        drawAxes();
-
-
-        /*
-        Rotate Cam
-        */
-
-        // Rotation de la caméra autour de l'axe Y
-        // float rotationAngle = map(currentByte, 0, octetsDuFichier.length, 0, TWO_PI); // Utilisation de l'avancement dans la lecture du fichier pour calculer l'angle de rotation
-        // cam.beginHUD();
-        // cam.rotateY(rotationAngle);
-        // cam.endHUD();
-
-        /*
-        Rotate Cam
-        */
-        
-        currentByte++;
-    }
-}
-
-
-void drawTrail() {
-    stroke(181, 36, 1);
-    noFill();
-    for (int i = 0; i < positionsHistory.size() - 1; i++) {
-        float alpha = map(i, 0, positionsHistory.size(), 255, 0); // Opacité basée sur la position dans l'historique
-        stroke(255, alpha); // Appliquer l'opacité
-        PVector pos1 = positionsHistory.get(i);
-        PVector pos2 = positionsHistory.get(i + 1);
-        line(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z);
-    }
-    
-    // Effet de trainée qui s'efface
-    while (positionsHistory.size() > 5) { // Taille de l'historique des points
-        positionsHistory.remove(0);
-    }
-}
-
-
-//  Read File
-byte[][] lireFichier(String nomFichier) {
-    byte[] contenu = loadBytes(nomFichier);
+  background(0);
+  calculateWaves();
+  renderAxes();
   
-    if (contenu != null) {
-        int tailleTableauTroisOctets = contenu.length / 3;
-        byte[][] tableauTroisOctets = new byte[tailleTableauTroisOctets][3];
-        
-        int index = 0;
-        for (int j = 0; j < tailleTableauTroisOctets; j++) {
-            for (int k = 0; k < 3; k++) {
-                tableauTroisOctets[j][k] = contenu[index];
-                index++;
-            }
-        }
-        
-        return tableauTroisOctets;
-    } else {
-        println("Le fichier n'a pas pu être chargé.");
-        return null;
-    }
+  pushMatrix();
+  //rotateZ(rad);
+  renderWave(waveX, color(255, 0, 0));
+  popMatrix();
+  
+  pushMatrix();
+  rotateZ(radians(90));
+  renderWave(waveY, color(0, 255, 0));
+  popMatrix();
+  
+  pushMatrix();
+  rotateY(radians(90));
+  renderWave(waveZ, color(0, 0, 255));
+  popMatrix();
+
 }
 
+void calculateWaves() {
+  beat.detect(player.mix);
+  if (beat.isOnset()) {
+    frequencyX = random(0.02, 0.08);
+    frequencyY = random(0.02, 0.08);
+    frequencyZ = random(0.02, 0.08);
+  }
+  
+  angle += frequencyX;
+  float xoff = angle;
+  
+  for (int i = 0; i < waveLength; i++) {
+    waveX[i] = map(noise(xoff), 0, 1, -100, 100);
+    xoff += 0.1;
+  }
+  
+  angle += frequencyY;
+  float yoff = angle;
+  
+  for (int i = 0; i < waveLength; i++) {
+    waveY[i] = map(noise(yoff), 0, 1, -100, 100);
+    yoff += 0.1;
+  }
+  
+  angle += frequencyZ;
+  float zoff = angle;
+  
+  for (int i = 0; i < waveLength; i++) {
+    waveZ[i] = map(noise(zoff), 0, 1, -100, 100);
+    zoff += 0.1;
+  }
+}
 
-//  Draw axes 
-void drawAxes() {
-    // Axe X (rouge)
-    stroke(255, 0, 0);
-    line(0, 0, 0, 200, 0, 0);
-    // Axe Y (vert)
-    stroke(0, 255, 0);
-    line(0, 0, 0, 0, 200, 0);
-    // Axe Z (bleu)
-    stroke(0, 0, 255);
-    line(0, 0, 0, 0, 0, 200);
+void renderWave(float[] wave, color c) {
+  stroke(c);
+  noFill();
+  beginShape();
+  
+  for (int i = 0; i < waveLength; i++) {
+    float x = i - waveLength / 2;
+    float y = wave[i];
+    float z = 0;
+    vertex(x, y, z);
+  }
+  
+  endShape();
+}
+
+void renderAxes() {
+  // Axes X, Y, Z
+  stroke(255, 0, 0); // X en rouge
+  line(-width / 2, 0, 0, width / 2, 0, 0); // Axe X
+  
+  stroke(0, 255, 0); // Y en vert
+  line(0, -height / 2, 0, 0, height / 2, 0); // Axe Y
+  
+  stroke(0, 0, 255); // Z en bleu
+  line(0, 0, -height / 2, 0, 0, height / 2); // Axe Z
 }

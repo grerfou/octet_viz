@@ -4,7 +4,10 @@ import peasy.*;
 
 Minim minim;
 AudioOutput out;
-AudioPlayer player;
+
+AudioPlayer player_x;
+AudioPlayer player_y;
+AudioPlayer player_z;
 BeatDetect beat;
 PeasyCam cam;
 
@@ -41,9 +44,21 @@ void setup() {
 
     // Init minim
     minim = new Minim(this);
+
+
     // Load and play sound
-    player = minim.loadFile("a.mp3", 2048);
-    player.play();
+    player_x = minim.loadFile("a.mp3", 2048);
+    player_x.play();
+    player_x.setGain(-80);
+
+    player_x = minim.loadFile("a.mp3", 2048);
+    player_x.play();
+    player_x.setGain(-80);
+
+    player_x = minim.loadFile("a.mp3", 2048);
+    player_x.play();
+    player_x.setGain(-80);
+
     // Out 
     out = minim.getLineOut();
     beat = new BeatDetect();
@@ -77,24 +92,14 @@ void draw() {
 
 
         pushMatrix();
-        // Axes visibility
-        //drawAxes(0, 0, turn);
-        // Trainée point 
         drawTrail(scaleLine, scaleLine, scaleLine, 0, 0, 0);
         popMatrix();
-    
 
-        // Rotation de la caméra autour de l'axe Y
-        float rotationAngle = map(currentByte, 0, octetsDuFichier.length, 0, TWO_PI); 
-        cam.beginHUD();
-        cam.rotateY(rotationAngle);
-        cam.endHUD();
-        
-        turn++;
         currentByte++;
     }
 
     calculateWaves();
+
     pushMatrix();
     renderWave(waveX, color(255, 0, 0), 0, 0, turnW);
     popMatrix();

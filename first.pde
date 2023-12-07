@@ -18,7 +18,7 @@ float angle = 0.0;
 float frequencyX = 0.03;
 float frequencyY = 0.04;
 float frequencyZ = 0.05;
-  
+
 
 void setup() {
   size(800, 600, P3D);
@@ -26,9 +26,7 @@ void setup() {
   
   player_x = minim.loadFile("./sound/a.mp3", 2048);
   player_x.play();
-  player_x.setGain(-10.0);
-
-  println("player_x: "+player_x);
+  player_x.setGain(-80.0);
 
   player_y = minim.loadFile("./sound/b.mp3", 2048);
   player_y.play();
@@ -37,8 +35,6 @@ void setup() {
   player_z = minim.loadFile("./sound/c.mp3", 2048);
   player_z.play();
   player_z.setGain(-80.0);
-
-
   
   out = minim.getLineOut();
   beat = new BeatDetect();
@@ -60,7 +56,6 @@ void draw() {
     }
     
     pushMatrix();
-    //rotateZ(rad);
     renderWave(waveX, color(255, 0, 0));
     popMatrix();
     

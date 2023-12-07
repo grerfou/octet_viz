@@ -8,7 +8,7 @@ int currentByte = 0;
 ArrayList<PVector> positionsHistory = new ArrayList<PVector>();
 float trailFadeSpeed = 50; 
 
-
+float turn = 0;
 
 void settings() {
     fullScreen(P3D, 0);
@@ -24,7 +24,7 @@ void setup() {
     octetsDuFichier = lireFichier(nomFichier); 
 
     //  Init cam
-    cam = new PeasyCam(this, 100);
+    cam = new PeasyCam(this, 1000);
     cam.setMinimumDistance(1);
     cam.setMaximumDistance(10000);
 
@@ -37,65 +37,57 @@ void draw() {
     // translate(width/2, height/2, -100);
 
     if (octetsDuFichier != null && currentByte < octetsDuFichier.length) {
-        float x = map(octetsDuFichier[currentByte][0], 0, 3000, -width/2, width/2); // mapping des valeurs 
-        float y = map(octetsDuFichier[currentByte][1], 0, 3000, -height/2, height/2);  
-        float z = map(octetsDuFichier[currentByte][2], 0, 3000, -1000, 1000);  
+
+        float x = map(octetsDuFichier[currentByte][0], 0, 3000, -5000, 5000); // mapping des valeurs 
+        float y = map(octetsDuFichier[currentByte][1], 0, 3000, -5000, 5000);  
+        float z = map(octetsDuFichier[currentByte][2], 0, 3000, -5000, 5000);  
 
         PVector currentPos = new PVector(x, y, z);
         positionsHistory.add(currentPos.copy());
 
-        //  Draw graphic with octets
+
         pushMatrix();
-
-        translate(x, y, z);
-        fill(181, 36, 5);
-        noStroke();
-        lights();
-        sphere(sphereSize);
-
-        popMatrix();
-        
-        // Trainée points 
-        drawTrail();
-
         // Axes visibility
-        drawAxes();
-
-
-        /*
-        Rotate Cam
-        */
+        drawAxes(0, 0, turn);
+        // Trainée point 
+        drawTrail(5000, 5000, 5000, 0, 0, 0);
+        popMatrix();
+    
 
         // Rotation de la caméra autour de l'axe Y
-        // float rotationAngle = map(currentByte, 0, octetsDuFichier.length, 0, TWO_PI); // Utilisation de l'avancement dans la lecture du fichier pour calculer l'angle de rotation
-        // cam.beginHUD();
-        // cam.rotateY(rotationAngle);
-        // cam.endHUD();
-
-        /*
-        Rotate Cam
-        */
+        float rotationAngle = map(currentByte, 0, octetsDuFichier.length, 0, TWO_PI); 
+        cam.beginHUD();
+        cam.rotateY(rotationAngle);
+        cam.endHUD();
         
+        turn++;
         currentByte++;
     }
 }
 
 
-void drawTrail() {
+void drawTrail(float offsetX, float offsetY, float offsetZ, float rotx, float roty, float rotz) {
     stroke(181, 36, 1);
     noFill();
+
+    pushMatrix();
+    translate(offsetX, offsetY, offsetZ); // Translation pour la traînée
+    rotateX(radians(rotx));
+    rotateY(radians(roty));
+    rotateZ(radians(rotz));
+
     for (int i = 0; i < positionsHistory.size() - 1; i++) {
-        float alpha = map(i, 0, positionsHistory.size(), 255, 0); // Opacité basée sur la position dans l'historique
-        stroke(255, alpha); // Appliquer l'opacité
+        float alpha = map(i, 0, positionsHistory.size(), 255, 0);
+        stroke(255, alpha);
         PVector pos1 = positionsHistory.get(i);
         PVector pos2 = positionsHistory.get(i + 1);
         line(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z);
     }
-    
-    // Effet de trainée qui s'efface
-    while (positionsHistory.size() > 5) { // Taille de l'historique des points
+
+    while (positionsHistory.size() > 5) {
         positionsHistory.remove(0);
     }
+    popMatrix(); // Terminer la transformation
 }
 
 
@@ -124,7 +116,12 @@ byte[][] lireFichier(String nomFichier) {
 
 
 //  Draw axes 
-void drawAxes() {
+void drawAxes(float rotx, float roty, float rotz) {
+
+    rotateX(radians(rotx));
+    rotateY(radians(roty));
+    rotateZ(radians(rotz));
+
     // Axe X (rouge)
     stroke(255, 0, 0);
     line(0, 0, 0, 200, 0, 0);

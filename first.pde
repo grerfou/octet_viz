@@ -5,9 +5,9 @@ import peasy.*;
 Minim minim;
 AudioOutput out;
 
-AudioPlayer player_x;
-AudioPlayer player_y;
-AudioPlayer player_z;
+AudioPlayer playerx_;
+AudioPlayer playery_;
+AudioPlayer playerz_;
 BeatDetect beat;
 PeasyCam cam;
 
@@ -30,6 +30,10 @@ float trailFadeSpeed = 50;
 float turn = 0;
 float turnW = 0;
 
+// int dbx_ =
+// int dby_ =
+// int dbz_ =
+
 void settings() {
     fullScreen(P3D, 0);
 }
@@ -47,17 +51,17 @@ void setup() {
 
 
     // Load and play sound
-    player_x = minim.loadFile("a.mp3", 2048);
-    player_x.play();
-    player_x.setGain(-80);
+    playerx_ = minim.loadFile("./sound/a.mp3", 2048);
+    playerx_.play();
+    playerx_.setGain(-10);
 
-    player_x = minim.loadFile("a.mp3", 2048);
-    player_x.play();
-    player_x.setGain(-80);
+    playery_ = minim.loadFile("./sound/b.mp3", 2048);
+    playery_.play();
+    playery_.setGain(-80);
 
-    player_x = minim.loadFile("a.mp3", 2048);
-    player_x.play();
-    player_x.setGain(-80);
+    playerz_ = minim.loadFile("./sound/c.mp3", 2048);
+    playerz_.play();
+    playerz_.setGain(-80);
 
     // Out 
     out = minim.getLineOut();
@@ -143,36 +147,51 @@ void drawTrail(float offsetX, float offsetY, float offsetZ, float rotx, float ro
 }
 
 void calculateWaves() {
-  beat.detect(player.mix);
-  if (beat.isOnset()) {
-    frequencyX = random(0.02, 0.08);
-    frequencyY = random(0.02, 0.08);
-    frequencyZ = random(0.02, 0.08);
-  }
-  
-  angle += frequencyX;
-  float xoff = angle;
-  
-  for (int i = 0; i < waveLength; i++) {
-    waveX[i] = map(noise(xoff), 0, 1, -100, 100);
-    xoff += 0.1;
-  }
-  
-  angle += frequencyY;
-  float yoff = angle;
-  
-  for (int i = 0; i < waveLength; i++) {
-    waveY[i] = map(noise(yoff), 0, 1, -100, 100);
-    yoff += 0.1;
-  }
-  
-  angle += frequencyZ;
-  float zoff = angle;
-  
-  for (int i = 0; i < waveLength; i++) {
-    waveZ[i] = map(noise(zoff), 0, 1, -100, 100);
-    zoff += 0.1;
-  }
+    
+    beat.detect(playerx_.mix);
+    if (beat.isOnset()) {
+        frequencyX = random(0.02, 0.08);
+        frequencyY = random(0.02, 0.08);
+        frequencyZ = random(0.02, 0.08);
+    }
+
+    beat.detect(playery_.mix);
+    if (beat.isOnset()) {
+        frequencyX = random(0.02, 0.08);
+        frequencyY = random(0.02, 0.08);
+        frequencyZ = random(0.02, 0.08);
+    }
+
+    beat.detect(playerz_.mix);
+    if (beat.isOnset()) {
+        frequencyX = random(0.02, 0.08);
+        frequencyY = random(0.02, 0.08);
+        frequencyZ = random(0.02, 0.08);
+    }
+    
+    angle += frequencyX;
+    float xoff = angle;
+    
+    for (int i = 0; i < waveLength; i++) {
+        waveX[i] = map(noise(xoff), 0, 1, -100, 100);
+        xoff += 0.1;
+    }
+    
+    angle += frequencyY;
+    float yoff = angle;
+    
+    for (int i = 0; i < waveLength; i++) {
+        waveY[i] = map(noise(yoff), 0, 1, -100, 100);
+        yoff += 0.1;
+    }
+    
+    angle += frequencyZ;
+    float zoff = angle;
+    
+    for (int i = 0; i < waveLength; i++) {
+        waveZ[i] = map(noise(zoff), 0, 1, -100, 100);
+        zoff += 0.1;
+    }
 }
 
 void renderWave(float[] wave, color c, float rotx, float roty, float rotz) {

@@ -78,7 +78,7 @@ void draw() {
 
         pushMatrix();
         // Axes visibility
-        drawAxes(0, 0, turn);
+        //drawAxes(0, 0, turn);
         // Trainée point 
         drawTrail(scaleLine, scaleLine, scaleLine, 0, 0, 0);
         popMatrix();
@@ -131,7 +131,7 @@ void drawTrail(float offsetX, float offsetY, float offsetZ, float rotx, float ro
         line(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z);
     }
 
-    while (positionsHistory.size() > 5) {
+    while (positionsHistory.size() > 10) {
         positionsHistory.remove(0);
     }
     popMatrix(); // Terminer la transformation

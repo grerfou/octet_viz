@@ -5,7 +5,11 @@ import peasy.org.apache.commons.math.geometry.*;
 
 Minim minim;
 AudioOutput out;
-AudioPlayer player;
+
+AudioPlayer player_x;
+AudioPlayer player_y;
+AudioPlayer player_z;
+
 BeatDetect beat;
 PeasyCam cam;
 
@@ -22,8 +26,15 @@ void setup() {
   minim = new Minim(this);
   
   // Charge un fichier audio (changez le chemin du fichier)
-  player = minim.loadFile("a.mp3", 2048);
-  player.play();
+  player_x = minim.loadFile("a.mp3", 2048);
+  player_x.play();
+
+  player_y = minim.loadFile("a.mp3", 2048);
+  player_y.play();
+
+  player_z = minim.loadFile("a.mp3", 2048);
+  player_z.play();
+
   
   out = minim.getLineOut();
   beat = new BeatDetect();
@@ -57,7 +68,22 @@ void draw() {
 }
 
 void calculateWaves() {
-  beat.detect(player.mix);
+
+  beat.detect(player_x.mix);
+  if (beat.isOnset()) {
+    frequencyX = random(0.02, 0.08);
+    frequencyY = random(0.02, 0.08);
+    frequencyZ = random(0.02, 0.08);
+  }
+
+  beat.detect(player_y.mix);
+  if (beat.isOnset()) {
+    frequencyX = random(0.02, 0.08);
+    frequencyY = random(0.02, 0.08);
+    frequencyZ = random(0.02, 0.08);
+  }
+  
+  beat.detect(player_z.mix);
   if (beat.isOnset()) {
     frequencyX = random(0.02, 0.08);
     frequencyY = random(0.02, 0.08);

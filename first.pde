@@ -1,9 +1,15 @@
+import peasy.*;
+
 PImage img;
+PeasyCam cam;
 
 void setup() {
   size(800, 600, P3D);
-  img = loadImage("image.jpg"); // Charger une image spécifique
+
+  img = loadImage("a.jpg"); // Charger une image spécifique
   img.loadPixels(); // Charger les pixels de l'image
+
+  cam = new PeasyCam(this, 10);
 }
 
 void draw() {
